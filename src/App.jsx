@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Auth from './view/auth.jsx'; // Caminho baseado na sua estrutura de arquivos
 import './App.css';
 
 function App() {
+  // --- ESTADOS DE AUTENTICAÇÃO ---
+  const [user, setUser] = useState('');
+
+  // --- ESTADOS DO TO-DO LIST ---
   const [page, setPage] = useState('tasks');
   const [task, setTask] = useState('');
   const [todos, setTodos] = useState([]);
@@ -9,6 +14,43 @@ function App() {
   const [removedTasks, setRemovedTasks] = useState([]);
   const [historySearch, setHistorySearch] = useState('');
 
+  // 1. EFEITO: Verifica se já existe um usuário logado ao abrir o app
+  useEffect(() => {
+    const loggedUser = localStorage.getItem('usuario_atual');
+    if (loggedUser) {
+      setUser(loggedUser);
+    }
+  }, []);
+
+  // 2. EFEITO: Sempre que o usuário logar/mudar, carrega o histórico específico dele
+  useEffect(() => {
+    if (user) {
+      const savedTodos = localStorage.getItem(`todos_${user}`);
+      const savedCompleted = localStorage.getItem(`completed_${user}`);
+      const savedRemoved = localStorage.getItem(`removed_${user}`);
+
+      setTodos(savedTodos ? JSON.parse(savedTodos) : []);
+      setCompletedTasks(savedCompleted ? JSON.parse(savedCompleted) : []);
+      setRemovedTasks(savedRemoved ? JSON.parse(savedRemoved) : []);
+    }
+  }, [user]);
+
+  // 3. EFEITO: Salva as listas locais automaticamente sempre que houver modificações
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(`todos_${user}`, JSON.stringify(todos));
+      localStorage.setItem(`completed_${user}`, JSON.stringify(completedTasks));
+      localStorage.setItem(`removed_${user}`, JSON.stringify(removedTasks));
+    }
+  }, [todos, completedTasks, removedTasks, user]);
+
+  // --- FUNÇÕES DE LOGOUT ---
+  const handleLogout = () => {
+    localStorage.removeItem('usuario_atual');
+    setUser('');
+  };
+
+  // --- FUNÇÕES DO TO-DO LIST ---
   const handleAddTask = () => {
     if (!task.trim()) return;
     setTodos((current) => [
@@ -55,8 +97,25 @@ function App() {
     }
   };
 
+  // --- RENDERIZAÇÃO CONDICIONAL ---
+  // Se não houver usuário ativo, bloqueia o app e mostra a tela de Login/Cadastro
+  if (!user) {
+    return <Auth onLoginSuccess={(username) => setUser(username)} />;
+  }
+
+  // Se o usuário estiver logado, exibe o To-Do List completo com os dados dele
   return (
     <div className="app-container">
+      {/* Barra de usuário no topo */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '20px' }}>
+        <span style={{ fontSize: '14px', color: '#94a3b8' }}>
+          Conectado como: <strong style={{ color: '#3b82f6' }}>{user}</strong>
+        </span>
+        <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}>
+          Sair da Conta
+        </button>
+      </div>
+
       <header>
         <h1>To-do List</h1>
         <p>Projeto React iniciante para praticar estado, eventos e listas.</p>
@@ -91,26 +150,26 @@ function App() {
           </section>
 
           <section className="task-list">
-        {todos.length === 0 ? (
-          <p className="empty-state">Nenhuma tarefa ainda. Adicione uma acima.</p>
-        ) : (
-          <ul>
-            {todos.map((todo) => (
-              <li key={todo.id} className={todo.done ? 'done' : ''}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={todo.done}
-                    onChange={() => handleToggle(todo.id)}
-                  />
-                  <span>{todo.text}</span>
-                </label>
-                <button onClick={() => handleDelete(todo.id)}>Remover</button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+            {todos.length === 0 ? (
+              <p className="empty-state">Nenhuma tarefa ainda. Adicione uma acima.</p>
+            ) : (
+              <ul>
+                {todos.map((todo) => (
+                  <li key={todo.id} className={todo.done ? 'done' : ''}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={todo.done}
+                        onChange={() => handleToggle(todo.id)}
+                      />
+                      <span>{todo.text}</span>
+                    </label>
+                    <button onClick={() => handleDelete(todo.id)}>Remover</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </>
       ) : (
         <section className="history-section">
