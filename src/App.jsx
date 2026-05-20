@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Auth from './view/auth.jsx'; // Caminho baseado na sua estrutura de arquivos
+import Admin from './view/admin.jsx'; // Importando o painel para renderizar aqui
 import './App.css';
 
 function App() {
@@ -22,9 +23,9 @@ function App() {
     }
   }, []);
 
-  // 2. EFEITO: Sempre que o usuário logar/mudar, carrega o histórico específico dele
+  // 2. EFEITO: Sempre que o usuário logar/mudar, carrega o histórico específico dele (se não for admin)
   useEffect(() => {
-    if (user) {
+    if (user && user.toLowerCase() !== 'admin') {
       const savedTodos = localStorage.getItem(`todos_${user}`);
       const savedCompleted = localStorage.getItem(`completed_${user}`);
       const savedRemoved = localStorage.getItem(`removed_${user}`);
@@ -37,12 +38,28 @@ function App() {
 
   // 3. EFEITO: Salva as listas locais automaticamente sempre que houver modificações
   useEffect(() => {
-    if (user) {
+    if (user && user.toLowerCase() !== 'admin') {
       localStorage.setItem(`todos_${user}`, JSON.stringify(todos));
       localStorage.setItem(`completed_${user}`, JSON.stringify(completedTasks));
       localStorage.setItem(`removed_${user}`, JSON.stringify(removedTasks));
     }
   }, [todos, completedTasks, removedTasks, user]);
+
+  // --- FUNÇÃO DE LOGS (ADMINISTRATIVO) ---
+  const registrarLog = (usuario, acao, tarefa) => {
+    const logsAtuais = localStorage.getItem('logs_movimentacao');
+    const listaLogs = logsAtuais ? JSON.parse(logsAtuais) : [];
+    
+    const novoLog = {
+      id: crypto.randomUUID(),
+      usuario: usuario,
+      acao: acao, // 'Adicionou', 'Concluiu' ou 'Removeu'
+      tarefa: tarefa,
+      data: new Date().toLocaleString('pt-BR')
+    };
+
+    localStorage.setItem('logs_movimentacao', JSON.stringify([novoLog, ...listaLogs]));
+  };
 
   // --- FUNÇÕES DE LOGOUT ---
   const handleLogout = () => {
@@ -57,6 +74,7 @@ function App() {
       ...current,
       { id: crypto.randomUUID(), text: task.trim(), done: false }
     ]);
+    registrarLog(user, 'Adicionou', task.trim()); // Salva nos logs globais do admin
     setTask('');
   };
 
@@ -73,6 +91,7 @@ function App() {
           }
           return [...history, { id: toggled.id, text: toggled.text }];
         });
+        registrarLog(user, 'Concluiu', toggled.text); // Salva nos logs globais do admin
       }
       return next;
     });
@@ -86,6 +105,7 @@ function App() {
           ...history,
           { id: deleted.id, text: deleted.text }
         ]);
+        registrarLog(user, 'Removeu', deleted.text); // Salva nos logs globais do admin
       }
       return current.filter((todo) => todo.id !== id);
     });
@@ -98,12 +118,18 @@ function App() {
   };
 
   // --- RENDERIZAÇÃO CONDICIONAL ---
+  
   // Se não houver usuário ativo, bloqueia o app e mostra a tela de Login/Cadastro
   if (!user) {
     return <Auth onLoginSuccess={(username) => setUser(username)} />;
   }
 
-  // Se o usuário estiver logado, exibe o To-Do List completo com os dados dele
+  // Se o usuário digitado for o "admin", renderiza o painel do administrador em vez do To-Do List
+  if (user.toLowerCase() === 'admin') {
+    return <Admin onLogout={handleLogout} />;
+  }
+
+  // Se o usuário estiver logado e for comum, exibe o To-Do List completo com os dados dele
   return (
     <div className="app-container">
       {/* Barra de usuário no topo */}
