@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-// 💡 CREDENCIAIS DO ADMINISTRADOR PRÉ-DEFINIDAS
+// CREDENCIAIS DO ADMINISTRADOR PRÉ-DEFINIDAS
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin123'; // Escolha a senha que você preferir aqui
+const ADMIN_PASSWORD = 'admin123';
 
 function Auth({ onLoginSuccess }) {
   const [isRegistering, setIsRegistering] = useState(false); // Altera entre Login (false) e Cadastro (true)
@@ -26,7 +26,7 @@ function Auth({ onLoginSuccess }) {
       return;
     }
 
-    // 🔒 PROTEÇÃO: Impede que usuários comuns se cadastrem como "admin"
+    // Impede que usuários comuns se cadastrem como "admin"
     if (username.trim().toLowerCase() === ADMIN_USERNAME) {
       setError('Este nome de usuário é reservado e não pode ser cadastrado.');
       return;
@@ -61,14 +61,14 @@ function Auth({ onLoginSuccess }) {
       return;
     }
 
-    // 🚀 1. VALIDAÇÃO DO ADMIN FIXO: Intercepta o login antes de buscar no LocalStorage
+    // Intercepta o login antes de buscar no LocalStorage
     if (username.trim().toLowerCase() === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       localStorage.setItem('usuario_atual', 'admin');
       onLoginSuccess('admin');
       return; // Para a execução aqui mesmo
     }
 
-    // 👥 2. VALIDAÇÃO DOS USUÁRIOS COMUNS (Caso não seja o admin)
+    // VALIDAÇÃO DOS USUÁRIOS COMUNS (Caso não seja o admin)
     const currentUsers = getRegisteredUsers();
 
     // Procura por um usuário com o mesmo nome e senha digitados
