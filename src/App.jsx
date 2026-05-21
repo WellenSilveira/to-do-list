@@ -15,7 +15,7 @@ function App() {
   const [removedTasks, setRemovedTasks] = useState([]);
   const [historySearch, setHistorySearch] = useState('');
 
-  // ⚙️ --- NOVO ESTADO: CONTROLE DO MENU FLUTUANTE ---
+  // ⚙️ --- ESTADO DO MENU FLUTUANTE ---
   const [showConfigMenu, setShowConfigMenu] = useState(false);
 
   // 👤 --- FUNÇÃO: EDITAR PERFIL ---
@@ -66,7 +66,7 @@ function App() {
     
     // 3. Atualiza o estado do React
     setUser(nomeTrimpado);
-    alert('Nome de usuário updated com sucesso!');
+    alert('Nome de usuário atualizado com sucesso!');
   };
 
   // 🔑 --- FUNÇÃO: CONFIGURAÇÕES DE LOGIN (ALTERAR SENHA PRÓPRIA) ---
@@ -213,37 +213,48 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* 🛠️ BARRA DE USUÁRIO CORRIGIDA COM A ENGRENAGEM E MENU FLUTUANTE */}
+      {/* 🛠️ BARRA DE USUÁRIO COM ESTRUTURA DE COLUNAS (FOTO + MENUS EMPILHADOS) */}
       <div style={styles.headerInfoContainer}>
-        <span style={styles.conexaoTexto}>
-          Conectado como: <strong style={{ color: '#3b82f6' }}>{user}</strong>
-        </span>
         
-        <div style={styles.wrapperEngrenagem}>
-          <button 
-            onClick={() => setShowConfigMenu(!showConfigMenu)} 
-            style={styles.btnEngrenagem}
-            title="Opções de Conta"
-          >
-            ⚙️ Menu
-          </button>
+        {/* Coluna da Esquerda: Caixa de Ícone + Nome do Usuário */}
+        <div style={styles.colunaUsuario}>
+          <div style={styles.caixaIcone}>
+            <span style={styles.letraAvatar}>{user.charAt(0).toUpperCase()}</span>
+          </div>
+          <span style={styles.conexaoTexto}>
+            @{user}
+          </span>
+        </div>
+        
+        {/* Coluna da Direita: Botões Empilhados Verticalmente */}
+        <div style={styles.colunaControles}>
+          <div style={styles.wrapperEngrenagem}>
+            <button 
+              onClick={() => setShowConfigMenu(!showConfigMenu)} 
+              style={styles.btnEngrenagem}
+              title="Opções de Conta"
+            >
+              ⚙️ Menu
+            </button>
 
-          {/* Menu Flutuante condicional */}
-          {showConfigMenu && (
-            <div style={styles.dropdownMenu}>
-              <button onClick={handleEditarPerfil} style={styles.dropdownItem}>
-                👤 Editar Perfil
-              </button>
-              <button onClick={handleConfigurarLogin} style={styles.dropdownItem}>
-                🔑 Configurações de Login
-              </button>
-            </div>
-          )}
+            {/* Menu Flutuante - Abre para baixo alinhado na direita */}
+            {showConfigMenu && (
+              <div style={styles.dropdownMenu}>
+                <button onClick={handleEditarPerfil} style={styles.dropdownItem}>
+                  👤 Editar Perfil
+                </button>
+                <button onClick={handleConfigurarLogin} style={styles.dropdownItem}>
+                  🔑 Configurações de Login
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button onClick={handleLogout} style={styles.btnSair}>
+            Sair da Conta
+          </button>
         </div>
 
-        <button onClick={handleLogout} style={styles.btnSair}>
-          Sair da Conta
-        </button>
       </div>
 
       <header>
@@ -349,21 +360,51 @@ function App() {
   );
 }
 
-// 🎨 OBJETO DE ESTILOS ADICIONAIS PARA COMPOR O LAYOUT DA ENGRENAGEM
+// 🎨 OBJETO DE ESTILOS MODIFICADO CONFORME O SEU RASCUNHO VISUAL
 const styles = {
   headerInfoContainer: {
     display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    gap: '6px',
-    padding: '10px 0',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start', // Alinha as bases das colunas da esquerda e direita
+    padding: '15px 0',
     borderBottom: '1px solid rgba(255,255,255,0.1)',
-    marginBottom: '20px',
+    marginBottom: '25px',
     position: 'relative'
+  },
+  // --- LAYOUT DA COLUNA DA ESQUERDA (AVATAR) ---
+  colunaUsuario: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '8px'
+  },
+  caixaIcone: {
+    width: '100px',
+    height: '100px',
+    backgroundColor: '#1e293b',
+    border: '2px solid #334155',
+    borderRadius: '8px', // Bordas levemente arredondadas idênticas ao rascunho
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  letraAvatar: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#3b82f6'
   },
   conexaoTexto: {
     fontSize: '14px',
-    color: '#94a3b8'
+    color: '#94a3b8',
+    fontWeight: '500'
+  },
+  // --- LAYOUT DA COLUNA DA DIREITA (BOTÕES EMPILHADOS) ---
+  colunaControles: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: '10px',
+    paddingBottom: '4px' // Ajuste fino para casar o alinhamento da linha de base
   },
   wrapperEngrenagem: {
     position: 'relative',
@@ -372,29 +413,29 @@ const styles = {
   btnEngrenagem: {
     background: 'none',
     border: 'none',
-    color: '#94a3b8',
+    color: '#cbd5e1',
     fontSize: '14px',
     cursor: 'pointer',
-    padding: '2px 5px',
     display: 'flex',
     alignItems: 'center',
-    gap: '4px'
+    gap: '6px',
+    padding: '0'
   },
   dropdownMenu: {
     position: 'absolute',
-    top: '100%', // Abre para baixo da palavra "⚙️ Menu"
-    right: 0,
-    marginTop: '6px',
+    top: '100%',            // Abre para baixo de forma segura
+    right: '0px',           // Alinha com a ponta direita da barra
+    marginTop: '8px',
     backgroundColor: '#1e293b',
     border: '1px solid #334155',
     borderRadius: '8px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
     padding: '6px',
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-    zIndex: 150,
-    minWidth: '170px'
+    zIndex: 200,
+    minWidth: '180px'
   },
   dropdownItem: {
     background: 'none',
@@ -405,7 +446,8 @@ const styles = {
     fontSize: '13px',
     borderRadius: '4px',
     cursor: 'pointer',
-    width: '100%'
+    width: '100%',
+    transition: 'background-color 0.2s'
   },
   btnSair: {
     background: 'none',
