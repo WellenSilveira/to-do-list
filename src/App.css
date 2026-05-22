@@ -1,14 +1,14 @@
-/* --- 🔱 VARIABLES: ZELDA FANDOM WIKI THEME (MAJORA'S MASK) --- */
+/* --- CONFIGURAÇÃO DE VARIÁVEIS DE AMBIENTE: PALETA DE CORES (ZELDA THEME) --- */
 :root {
-  --wiki-bg-dark: #121212;      /* O fundo preto/cinza escuro profundo do site */
-  --wiki-sidebar: #1a1a1a;     /* Tom ligeiramente mais claro da barra de navegação lateral */
-  --wiki-olive-box: #5d4900;   /* O clássico fundo oliva/mostarda do container principal */
-  --wiki-triforce-yellow: #ffd400; /* O amarelo ouro radiante do brasão oficial */
-  --wiki-text-light: #e2e8f0;  /* Cor dos textos gerais da enciclopédia */
-  --wiki-text-muted: #8e8e8e;  /* Textos secundários e descrições */
+  --wiki-bg-dark: #121212;         /* Fundo principal em modo escuro profundo */
+  --wiki-sidebar: #1a1a1a;         /* Fundo secundário para superfícies de componentes */
+  --wiki-olive-box: #5d4900;       /* Cor de destaque oliva para elementos de ação secundários */
+  --wiki-triforce-yellow: #ffd400; /* Cor de destaque primária para títulos e foco de elementos */
+  --wiki-text-light: #e2e8f0;      /* Cor principal para tipografia de alta legibilidade */
+  --wiki-text-muted: #8e8e8e;      /* Cor secundária para textos de menor prioridade ou desabilitados */
 }
 
-/* 🌍 ESTILO GERAL DO BODY (FUNDO DO JOGO) */
+/* ESTILIZAÇÃO GLOBAL DO DOCUMENTO */
 body {
   background-color: var(--wiki-bg-dark);
   color: var(--wiki-text-light);
@@ -16,22 +16,22 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- 🏛️ CONTAINER PRINCIPAL --- */
+/* --- ESTRUTURA E CONTAINER PRINCIPAL DE LAYOUT --- */
 .app-container {
   max-width: 560px;
   margin: 40px auto;
   padding: 24px;
-  background: var(--wiki-sidebar); /* Bloco interno simulando a estrutura de cards da Wiki */
+  background: var(--wiki-sidebar); 
   border-radius: 18px;
   border: 1px solid #2d2d2d;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
 }
 
-/* 🏷️ TEXTOS DO CABEÇALHO */
+/* ELEMENTOS TIPOGRÁFICOS DO CABEÇALHO */
 header h1 {
   margin: 0;
   font-size: 2rem;
-  color: var(--wiki-triforce-yellow); /* Destaque principal em Amarelo Triforce */
+  color: var(--wiki-triforce-yellow); 
 }
 
 header p {
@@ -39,7 +39,7 @@ header p {
   color: var(--wiki-text-muted);
 }
 
-/* 🗺️ ABAS DE NAVEGAÇÃO */
+/* COMPONENTE DE NAVEGAÇÃO POR ABAS (TABS) */
 .app-nav {
   display: flex;
   gap: 12px;
@@ -52,27 +52,27 @@ header p {
   border: 1px solid #3a3a3a;
   border-radius: 14px;
   background: var(--wiki-bg-dark);
-  color: #8d7a0b; /* Mantém o texto padrão claro */
+  color: #8d7a0b; 
   cursor: pointer;
   font-weight: bold;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Aba ativa: Fundo assume o VERDE MUSGO quando selecionado, mantendo a cor do texto */
+/* Estado ativo: Modificação visual do background mantendo o contraste de acessibilidade */
 .app-nav button.active {
-  background: #114704; /* Fundo Verde Musgo */
-  color: #8d7a0b; /* Mantém o texto original claro */
-  border-color: var(--wiki-olive-box); /* Borda acompanha o verde musgo */
+  background: #114704; 
+  color: #8d7a0b; 
+  border-color: var(--wiki-olive-box); 
 }
 
-/* Hover das abas: Transiciona para o fundo VERDE MUSGO ao passar o mouse */
+/* Estado de hover: Feedback visual de interatividade */
 .app-nav button:hover {
-  background: #1c7406; /* Fundo Verde Musgo no hover */
-  color: #8d7a0b; /* Mantém o texto original claro */
+  background: #1c7406; 
+  color: #8d7a0b; 
   border-color: var(--wiki-olive-box);
 }
 
-/* 📝 ENTRADA DE TAREFAS (INPUT) */
+/* COMPONENTE DE ENTRADA DE DADOS (FORM INPUT) */
 .task-input {
   display: flex;
   gap: 12px;
@@ -108,10 +108,10 @@ header p {
 }
 
 .task-input button:hover {
-  background: #4a3a00; /* Variação sutil do oliva para o hover */
+  background: #4a3a00; 
 }
 
-/* 🗡️ LISTA DE TAREFAS (INVENTÁRIO DE MISSÕES) */
+/* LISTA DINÂMICA DE ITENS */
 .task-list ul {
   list-style: none;
   padding: 0;
@@ -130,12 +130,13 @@ header p {
   margin-bottom: 12px;
 }
 
+/* Modificador para tarefas marcadas como concluídas */
 .task-list li.done span {
   text-decoration: line-through;
   color: var(--wiki-text-muted);
 }
 
-/* Botão de Remover */
+/* Botão de exclusão / ação destrutiva */
 .task-list button {
   border: none;
   background: #ef4444;
@@ -150,7 +151,7 @@ header p {
   background: #dc2626;
 }
 
-/* 🗂️ SEÇÃO DE HISTÓRICO */
+/* COMPONENTE DA SEÇÃO DE HISTÓRICO */
 .history-section {
   margin-top: 32px;
   display: grid;
@@ -186,19 +187,19 @@ header p {
   gap: 18px;
 }
 
-/* 📱 RESPONSIVIDADE ORIGINAL MANTIDA EM 100% */
+/* REGRAS DE RESPONSIVIDADE E ADAPTAÇÃO DE VIEWPORT (MEDIA QUERIES) */
 @media (min-width: 720px) {
   .history-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-/* Cards do Histórico estilizados com a caixa mostarda escura */
+/* Módulos de visualização de dados dentro do histórico */
 .history-card {
   padding: 18px;
   border: 1px solid var(--wiki-olive-box);
   border-radius: 16px;
-  background: #181610; /* Mistura de preto com um fundo levemente quente */
+  background: #181610; 
 }
 
 .history-card h3 {
@@ -224,6 +225,7 @@ header p {
   border-bottom: none;
 }
 
+/* Estado vazio: Fallback para ausência de dados */
 .empty-state {
   color: var(--wiki-text-muted);
   text-align: center;

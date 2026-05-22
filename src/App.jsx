@@ -5,12 +5,11 @@ import EditarPerfil from "./view/editarPerfil.jsx";
 import "./App.css";
 
 function App() {
-  // --- ESTADOS DE AUTENTICAÇÃO E PERFIL ---
+  // --- GERENCIAMENTO DE ESTADO EM NÍVEL DE APLICATIVO (AUTENTICAÇÃO E PERFIL) ---
   const [user, setUser] = useState("");
-  //  NOVO ESTADO: Guarda o ícone do avatar selecionado pelo usuário
   const [iconePerfil, setIconePerfil] = useState("");
 
-  // --- ESTADOS DO TO-DO LIST ---
+  // --- GERENCIAMENTO DE ESTADO DOS DADOS DO TO-DO LIST ---
   const [page, setPage] = useState("tasks");
   const [task, setTask] = useState("");
   const [todos, setTodos] = useState([]);
@@ -18,30 +17,28 @@ function App() {
   const [removedTasks, setRemovedTasks] = useState([]);
   const [historySearch, setHistorySearch] = useState("");
 
-  //  --- ESTADO DO MENU FLUTUANTE ---
+  // --- ESTADO DE CONTROLE DE INTERFACE COMPONENIZADA (DROPDOWN) ---
   const [showConfigMenu, setShowConfigMenu] = useState(false);
 
-  //  --- FUNÇÃO: REDIRECIONAR PARA PÁGINA DE EDITAR PERFIL ---
+  // --- NAVEGAÇÃO INTERNA: RENDERIZAÇÃO DA TELA DE EDIÇÃO DE PERFIL ---
   const handleEditarPerfil = () => {
-    setShowConfigMenu(false); // Fecha o menu flutuante
+    setShowConfigMenu(false); 
 
     if (user.toLowerCase() === "admin") {
       alert("O perfil do administrador do sistema não pode ser alterado por aqui.");
       return;
     }
 
-    setPage("editar-perfil"); // Redireciona o app para a nova tela
+    setPage("editar-perfil"); 
   };
 
-  // --- FUNÇÃO: SALVAR ALTERAÇÕES DO PERFIL (ATUALIZADA) ---
+  // --- REGRA DE NEGÓCIO: PERSISTÊNCIA E MIGRAÇÃO DE DADOS EM LOGOUT/ALTERAÇÃO ---
   const salvarNovoPerfil = (novoNome, novoIcone) => {
     const nomeTrimpado = novoNome.trim();
 
-    // Busca a lista global para atualizar
     const usuariosRegistrados = localStorage.getItem("usuarios_registrados");
     let lista = usuariosRegistrados ? JSON.parse(usuariosRegistrados) : [];
 
-    // Se mudou o nome, verifica se o novo já existe no sistema para outro usuário
     if (nomeTrimpado.toLowerCase() !== user.toLowerCase()) {
       if (lista.some((u) => u.username.toLowerCase() === nomeTrimpado.toLowerCase())) {
         alert("Este nome de usuário já está em uso.");
@@ -49,19 +46,18 @@ function App() {
       }
     }
 
-    // 1. Migra os dados do LocalStorage do nome antigo para o novo nome
+    // Migração de chaves do LocalStorage para evitar perda de dados relacionados ao histórico do usuário
     localStorage.setItem(`todos_${nomeTrimpado}`, localStorage.getItem(`todos_${user}`) || "[]");
     localStorage.setItem(`completed_${nomeTrimpado}`, localStorage.getItem(`completed_${user}`) || "[]");
     localStorage.setItem(`removed_${nomeTrimpado}`, localStorage.getItem(`removed_${user}`) || "[]");
 
-    // Limpa os dados antigos apenas se o nome realmente mudou
     if (nomeTrimpado.toLowerCase() !== user.toLowerCase()) {
       localStorage.removeItem(`todos_${user}`);
       localStorage.removeItem(`completed_${user}`);
       localStorage.removeItem(`removed_${user}`);
     }
 
-    // 2. Atualiza os dados (username e avatar) dentro do array de usuários cadastrados
+    // Atualização da coleção global de usuários e persistência do estado de sessão
     lista = lista.map((u) => {
       if (u.username === user) {
         return { ...u, username: nomeTrimpado, avatar: novoIcone };
@@ -73,16 +69,16 @@ function App() {
     localStorage.setItem("usuario_atual", nomeTrimpado);
     localStorage.setItem(`avatar_${nomeTrimpado}`, novoIcone);
 
-    // 3. Atualiza os estados do React e retorna à base
+    // Sincronização do estado local do componente principal
     setUser(nomeTrimpado);
-    setIconePerfil(novoIcone); // Atualiza dinamicamente o cabeçalho
+    setIconePerfil(novoIcone); 
     alert("Perfil atualizado com sucesso!");
     setPage("tasks");
   };
 
-  // --- FUNÇÃO: CONFIGURAÇÕES DE LOGIN (ALTERAR SENHA PRÓPRIA) ---
+  // --- OPERAÇÃO DE ATUALIZAÇÃO DE CREDENCIAIS (MUTABILIDADE DO ARRANJO DE USUÁRIOS) ---
   const handleConfigurarLogin = () => {
-    setShowConfigMenu(false); // Fecha o menu
+    setShowConfigMenu(false); 
 
     if (user.toLowerCase() === "admin") {
       alert("Para alterar a senha do admin principal, modifique a constante diretamente no código do Auth.jsx.");
@@ -107,21 +103,20 @@ function App() {
     });
 
     localStorage.setItem("usuarios_registrados", JSON.stringify(lista));
-    alert("Sua senha de login foi updated com sucesso!");
+    alert("Sua senha de login foi atualizada com sucesso!");
   };
 
-  // 1. EFEITO: Verifica se já existe um usuário logado ao abrir o app
+  // --- EFICÁCIA DO CICLO DE VIDA (1): HIDRATAÇÃO DO ESTADO INICIAL VIA ARMAZENAMENTO LOCAL ---
   useEffect(() => {
     const loggedUser = localStorage.getItem("usuario_atual");
     if (loggedUser) {
       setUser(loggedUser);
-      // Carrega o avatar salvo para esse usuário
       const savedAvatar = localStorage.getItem(`avatar_${loggedUser}`);
       if (savedAvatar) setIconePerfil(savedAvatar);
     }
   }, []);
 
-  // 2. EFEITO: Sempre que o usuário logar/mudar, carrega o histórico específico dele
+  // --- EFICÁCIA DO CICLO DE VIDA (2): SINCRONIZAÇÃO DE REGISTROS DE DADOS BASEADOS NO ESCOPO DO USUÁRIO ---
   useEffect(() => {
     if (user && user.toLowerCase() !== "admin") {
       const savedTodos = localStorage.getItem(`todos_${user}`);
@@ -136,7 +131,7 @@ function App() {
     }
   }, [user]);
 
-  // 3. EFEITO: Salva as listas locais automaticamente sempre que houver modificações
+  // --- EFICÁCIA DO CICLO DE VIDA (3): PERSISTÊNCIA REATIVA POR DEPENDÊNCIAS DE MATRIZES ---
   useEffect(() => {
     if (user && user.toLowerCase() !== "admin") {
       localStorage.setItem(`todos_${user}`, JSON.stringify(todos));
@@ -145,7 +140,7 @@ function App() {
     }
   }, [todos, completedTasks, removedTasks, user]);
 
-  // --- FUNÇÃO DE LOGS (ADMINISTRATIVO) ---
+  // --- SISTEMA DE AUDITORIA INTERNA (LOGS DE EVENTOS DE MUTABILIDADE) ---
   const registrarLog = (usuario, acao, tarefa) => {
     const logsAtuais = localStorage.getItem("logs_movimentacao");
     const listaLogs = logsAtuais ? JSON.parse(logsAtuais) : [];
@@ -161,14 +156,14 @@ function App() {
     localStorage.setItem("logs_movimentacao", JSON.stringify([novoLog, ...listaLogs]));
   };
 
-  // --- FUNÇÕES DE LOGOUT ---
+  // --- INTERRUPÇÃO DE SESSÃO (REVOGAÇÃO DE TOKEN / LIMPEZA DE ESTADOS) ---
   const handleLogout = () => {
     localStorage.removeItem("usuario_atual");
     setUser("");
     setIconePerfil("");
   };
 
-  // --- FUNÇÕES DO TO-DO LIST ---
+  // --- REGRAS DE MANIPULAÇÃO DO FLUXO DE COMPROMISSOS (C.R.U.D LOCAL) ---
   const handleAddTask = () => {
     if (!task.trim()) return;
     setTodos((current) => [
@@ -216,6 +211,7 @@ function App() {
     }
   };
 
+  // --- RENDERIZAÇÃO CONDICIONAL DE BLOQUEIOS DE ACESSO ---
   if (!user) {
     return <Auth onLoginSuccess={(username) => setUser(username)} />;
   }
@@ -226,11 +222,11 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* BARRA DE USUÁRIO DINÂMICA COM SUPORTE A AVATAR EM SEGUNDO PLANO */}
+      {/* SEÇÃO INFORMATIVA DO PERFIL DE USUÁRIO CORRENTE */}
       <div style={styles.headerInfoContainer}>
         <div style={styles.colunaUsuario}>
           
-          {/* Caixa do ícone adaptada para renderizar imagem como plano de fundo */}
+          {/* Container dinâmico para renderização de propriedades em background-image */}
           <div 
             style={{
               ...styles.caixaIcone,
@@ -241,7 +237,7 @@ function App() {
               backgroundColor: iconePerfil ? "#151515" : "#5d4900",
             }}
           >
-            {/* Só exibe a letra inicial se não tiver um avatar em imagem */}
+            {/* Fallback tipográfico baseado em caractere inicial caso não exista avatar definido */}
             {!iconePerfil && (
               <span style={styles.letraAvatar}>
                 {user.charAt(0).toUpperCase()}
@@ -259,7 +255,7 @@ function App() {
               style={styles.btnEngrenagem}
               title="Opções de Conta"
             >
-              ⚙️ Menu
+              Menu
             </button>
 
             {showConfigMenu && (
@@ -271,7 +267,7 @@ function App() {
                   onMouseEnter={styles.dropdownItem.onMouseEnter}
                   onMouseLeave={styles.dropdownItem.onMouseLeave}
                 >
-                  👤 Editar Perfil
+                  Editar Perfil
                 </button>
                 <button
                   onClick={handleConfigurarLogin}
@@ -280,7 +276,7 @@ function App() {
                   onMouseEnter={styles.dropdownItem.onMouseEnter}
                   onMouseLeave={styles.dropdownItem.onMouseLeave}
                 >
-                  🔑 Configurações de Login
+                  Configurações de Login
                 </button>
               </div>
             )}
@@ -292,6 +288,7 @@ function App() {
         </div>
       </div>
 
+      {/* COMPONENTE DE SELEÇÃO DE FLUXOS INTERNOS (TABULAÇÃO) */}
       <nav className="app-nav">
         <button
           className={page === "tasks" ? "active" : ""}
@@ -307,6 +304,7 @@ function App() {
         </button>
       </nav>
 
+      {/* RENDERIZAÇÃO DA VIEW: GERENCIAMENTO DE COMPROMISSOS ATIVOS */}
       {page === "tasks" && (
         <>
           <section className="task-input">
@@ -348,6 +346,7 @@ function App() {
         </>
       )}
 
+      {/* RENDERIZAÇÃO DA VIEW: HISTÓRICO COMPLETO E QUERIES DE BUSCA */}
       {page === "history" && (
         <section className="history-section">
           <h2>Histórico</h2>
@@ -357,7 +356,7 @@ function App() {
               type="text"
               placeholder="Buscar no histórico..."
               value={historySearch}
-              onChange={(event) => setPage(event.target.value)}
+              onChange={(event) => setHistorySearch(event.target.value)}
             />
           </div>
 
@@ -407,12 +406,12 @@ function App() {
         </section>
       )}
 
-      {/* TELA 3: EDITAR PERFIL CORRIGIDA COM OS NOVOS PARÂMETROS */}
+      {/* RENDERIZAÇÃO DA VIEW: FORMULÁRIO COMPLEMENTAR DE CONFIGURAÇÃO DE PERFIL */}
       {page === "editar-perfil" && (
         <EditarPerfil 
           usuarioAtual={user} 
-          iconeAtual={iconePerfil} //  Passa o ícone atual guardado no App
-          onSalvar={salvarNovoPerfil} //  Passa a nova função atualizada
+          iconeAtual={iconePerfil} 
+          onSalvar={salvarNovoPerfil} 
           onCancelar={() => setPage("tasks")} 
         />
       )}
@@ -420,6 +419,7 @@ function App() {
   );
 }
 
+// --- DICIONÁRIO DE ESTILOS JAVASCRIPT EM ESCALA LOCAL (CSS-IN-JS PATTERN) ---
 const styles = {
   headerInfoContainer: {
     display: "flex",

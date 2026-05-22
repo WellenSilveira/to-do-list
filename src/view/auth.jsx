@@ -1,22 +1,23 @@
 import { useState } from 'react';
 
-// CREDENCIAIS DO ADMINISTRADOR PRÉ-DEFINIDAS
+// --- CREDENCIAIS DE CONTROLE DE ACESSO ADMINISTRATIVO (HARDCODED PARA FINS DE DESENVOLVIMENTO) ---
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin123';
 
 function Auth({ onLoginSuccess }) {
-  const [isRegistering, setIsRegistering] = useState(false); // Altera entre Login (false) e Cadastro (true)
+  // --- GERENCIAMENTO DE ESTADO DE AUTENTICAÇÃO E CONTROLE DE FLUXO ---
+  const [isRegistering, setIsRegistering] = useState(false); 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Função para buscar a lista global de usuários no LocalStorage
+  // --- ACESSO E EXTRAÇÃO DE REGISTROS DO ARMAZENAMENTO LOCAL ---
   const getRegisteredUsers = () => {
     const users = localStorage.getItem('usuarios_registrados');
     return users ? JSON.parse(users) : [];
   };
 
-  // --- FUNÇÃO DE CADASTRO ---
+  // --- REGRA DE NEGÓCIO: ROTINA DE PERSISTÊNCIA DE NOVOS USUÁRIOS ---
   const handleRegister = (e) => {
     e.preventDefault();
     setError('');
@@ -26,7 +27,7 @@ function Auth({ onLoginSuccess }) {
       return;
     }
 
-    // Impede que usuários comuns se cadastrem como "admin"
+    // Validação restritiva para evitar colisão com credenciais do administrador do sistema
     if (username.trim().toLowerCase() === ADMIN_USERNAME) {
       setError('Este nome de usuário é reservado e não pode ser cadastrado.');
       return;
@@ -34,24 +35,24 @@ function Auth({ onLoginSuccess }) {
 
     const currentUsers = getRegisteredUsers();
 
-    // Evita nomes duplicados
+    // Verificação de unicidade do identificador de usuário (Username)
     const userExists = currentUsers.some(u => u.username.toLowerCase() === username.trim().toLowerCase());
     if (userExists) {
       setError('Este nome de usuário já está sendo usado.');
       return;
     }
 
-    // Adiciona o novo usuário
+    // Inserção e atualização da coleção de usuários no armazenamento local
     const newUser = { username: username.trim(), password: password };
     const updatedUsers = [...currentUsers, newUser];
     localStorage.setItem('usuarios_registrados', JSON.stringify(updatedUsers));
 
-    alert('Cadastro realizado com sucesso! Agora faça o seu login.');
-    setIsRegistering(false); // Muda automaticamente para a tela de login
+    alert('Cadastro realizado com sucesso! Proceda para a autenticação.');
+    setIsRegistering(false); 
     setPassword('');
   };
 
-  // --- FUNÇÃO DE LOGIN ---
+  // --- REGRA DE NEGÓCIO: ROTINA DE AUTENTICAÇÃO E CHECAGEM DE CREDENCIAIS ---
   const handleLogin = (e) => {
     e.preventDefault();
     setError('');
@@ -61,17 +62,16 @@ function Auth({ onLoginSuccess }) {
       return;
     }
 
-    // Intercepta o login antes de buscar no LocalStorage
+    // Intercepção prioritária de fluxo para validação da conta administradora
     if (username.trim().toLowerCase() === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       localStorage.setItem('usuario_atual', 'admin');
       onLoginSuccess('admin');
-      return; // Para a execução aqui mesmo
+      return; 
     }
 
-    // VALIDAÇÃO DOS USUÁRIOS COMUNS (Caso não seja o admin)
+    // Validação de credenciais contra a coleção de usuários comuns
     const currentUsers = getRegisteredUsers();
 
-    // Procura por um usuário com o mesmo nome e senha digitados
     const validUser = currentUsers.find(
       u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password
     );
@@ -81,17 +81,15 @@ function Auth({ onLoginSuccess }) {
       return;
     }
 
-    // Salva quem é o usuário ativo no navegador
+    // Inicialização da sessão e disparo de callback de sucesso
     localStorage.setItem('usuario_atual', validUser.username);
-    
-    // Avisa o App.jsx que o login deu certo para liberar o To-Do List
     onLoginSuccess(validUser.username);
   };
 
   return (
     <div className="auth-container" style={styles.container}>
-      {/* O título muda dinamicamente dependendo do estado */}
-      <h2 style={styles.titulo}>{isRegistering ? 'Criar Nova Conta' : 'Entrar no To-Do List'}</h2>
+      {/* RENDERIZAÇÃO TIPOGRÁFICA DINÂMICA DE ACORDO COM O FLUXO ATIVO */}
+      <h2 style={styles.titulo}>{isRegistering ? 'Criar Nova Conta' : 'Entrar no Sistema'}</h2>
       
       {error && <p style={styles.erro}>{error}</p>}
 
@@ -123,13 +121,13 @@ function Auth({ onLoginSuccess }) {
         </button>
       </form>
 
-      {/* O clique agora usa !isRegistering para alternar perfeitamente */}
+      {/* CONTROLE DE ALTERNÂNCIA DE TELA COM HIGIENIZAÇÃO DE ESTADOS TEMPORÁRIOS */}
       <p style={styles.textoAlternar}>
         {isRegistering ? 'Já tem uma conta?' : 'Não tem uma conta ainda?'} {' '}
         <span 
           style={styles.link} 
           onClick={() => {
-            setIsRegistering(!isRegistering); // Corrigido aqui!
+            setIsRegistering(!isRegistering); 
             setError('');
             setPassword('');
             setUsername('');
@@ -142,7 +140,7 @@ function Auth({ onLoginSuccess }) {
   );
 }
 
-// Estilos alinhados com o padrão do seu layout escuro
+// --- DICIONÁRIO DE ESTILOS EM ESCOPO LOCAL (CSS-IN-JS PATTERN) ---
 const styles = {
   container: {
     maxWidth: '400px',

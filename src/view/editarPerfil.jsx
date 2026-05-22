@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
+  // --- GERENCIAMENTO DE ESTADO LOCAL ---
   const [novoNome, setNovoNome] = useState(usuarioAtual);
 
-  // 🔄 BUSCA AUTOMÁTICA DE IMAGENS ACESSANDO O OBJETO DE MÓDULO DO VITE
+  // --- MAPEAMENTO DINÂMICO DE ATIVOS VIA API DE MÓDULOS DO VITE (BREADTH-FIRST DE DIRETÓRIO) ---
   const arquivosImagens = import.meta.glob("/public/avatares/*.{png,jpg,jpeg,PNG,JPG,JPEG}", { eager: true });
   
   const listaIcones = Object.values(arquivosImagens).map((modulo) => {
@@ -11,9 +12,10 @@ function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
     return caminhoCompleto.replace(/^\/public/, "");
   });
 
-  // O estado 'novoIcone' guarda qual imagem está selecionada atualmente
+  // Definição do estado do avatar com fallback para o primeiro ativo disponível do diretório mapeado
   const [novoIcone, setNovoIcone] = useState(iconeAtual || listaIcones[0] || "");
 
+  // --- MANIPULAÇÃO DO FLUXO DE SUBMISSÃO E VALIDAÇÃO DE ESCOPO ---
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!novoNome.trim()) {
@@ -25,12 +27,12 @@ function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.titulo}>👤 Editar Perfil</h2>
+      <h2 style={styles.titulo}>Editar Perfil</h2>
       <p style={styles.subtitulo}>
         Altere as suas informações de exibição no sistema.
       </p>
 
-      {/* 🌟 QUADRO DE PRÉVIA EM TEMPO REAL CORRIGIDO */}
+      {/* COMPONENTE DE FEEDBACK EM TEMPO REAL (REAL-TIME PREVIEW) */}
       <div style={styles.containerPrevia}>
         <div style={styles.circuloPrevia}>
           {novoIcone ? (
@@ -53,7 +55,7 @@ function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
 
       <form onSubmit={handleSubmit} style={styles.formulario}>
         
-        {/* 🛡️ SEÇÃO DE SELEÇÃO DE IMAGENS */}
+        {/* GALERIA SELETORE DE ATIVOS (GRID DE INTERFACE) */}
         <div style={styles.campoGrupo}>
           <label style={styles.label}>Escolha seu Ícone de Avatar:</label>
           <div style={styles.gradeIcones}>
@@ -62,7 +64,7 @@ function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
             ) : (
               listaIcones.map((caminhoUrl) => (
                 <button
-                  key={caminhoUrl} // 👈 Corrigido aqui (não usa mais caminmeUrl)
+                  key={caminhoUrl} 
                   type="button"
                   onClick={() => setNovoIcone(caminhoUrl)}
                   style={{
@@ -82,6 +84,7 @@ function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
           </div>
         </div>
 
+        {/* CAMPOS DE FORMULÁRIO CONTROLADOS */}
         <div style={styles.campoGrupo}>
           <label style={styles.label}>Nome de Usuário Atual:</label>
           <input
@@ -104,6 +107,7 @@ function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
           />
         </div>
 
+        {/* CONTROLES DE CONFIRMAÇÃO E DESCARTE DE MUTAÇÃO */}
         <div style={styles.botoesContainer}>
           <button type="button" onClick={onCancelar} style={styles.btnCancelar}>
             Cancelar
@@ -117,6 +121,7 @@ function EditarPerfil({ usuarioAtual, iconeAtual, onSalvar, onCancelar }) {
   );
 }
 
+// --- ARQUITETURA DE ESTILOS LOCAIS (CSS-IN-JS PATTERN) ---
 const styles = {
   container: {
     backgroundColor: "#1a1a1a",
@@ -164,7 +169,7 @@ const styles = {
     height: "100%",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "contain", // Preenche tudo sem deixar rebarba preta!
+    backgroundSize: "contain", 
     backgroundColor: "#151515",
   },
   letraPrevia: {

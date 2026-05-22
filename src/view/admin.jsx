@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 
 function Admin({ onLogout }) {
+  // --- GERENCIAMENTO DE ESTADO E FLUXO DE COMPONENTES ---
   const [usuarios, setUsuarios] = useState([]);
   const [logs, setLogs] = useState([]);
   const [filtroUsuario, setFiltroUsuario] = useState("");
 
-  // Carrega os dados do LocalStorage ao abrir o painel
+  // --- EFEITOS COLATERAIS: CARREGAMENTO INICIAL DE DADOS PERSISTIDOS ---
   useEffect(() => {
     const listaUsers = localStorage.getItem("usuarios_registrados");
     const listaLogs = localStorage.getItem("logs_movimentacao");
@@ -14,7 +15,7 @@ function Admin({ onLogout }) {
     setLogs(listaLogs ? JSON.parse(listaLogs) : []);
   }, []);
 
-  // 🔒 FUNÇÃO PARA RESETAR A SENHA (Garante a privacidade)
+  // --- ROTINA DE AUDITORIA E SEGURANÇA: RELEMBRAMENTO DE CREDENCIAIS ---
   const resetarSenha = (usernameParaResetar) => {
     if (usernameParaResetar.toLowerCase() === "admin") {
       alert(
@@ -23,17 +24,15 @@ function Admin({ onLogout }) {
       return;
     }
 
-    // Abre uma caixa no navegador para o admin definir a senha temporária
     const novaSenhaTemp = prompt(
       `Digite uma nova senha temporária para o usuário "${usernameParaResetar}":`,
     );
 
-    // Se o admin cancelar ou deixar em branco, não faz nada
     if (!novaSenhaTemp || !novaSenhaTemp.trim()) {
       return;
     }
 
-    // Atualiza a senha apenas desse usuário na lista
+    // Mapeamento e atualização atômica de registro específico na coleção
     const novosUsuarios = usuarios.map((u) => {
       if (u.username === usernameParaResetar) {
         return { ...u, password: novaSenhaTemp.trim() };
@@ -49,7 +48,7 @@ function Admin({ onLogout }) {
     );
   };
 
-  // Função para eliminar um utilizador do sistema
+  // --- ROTINA DE PURGAÇÃO: REMOÇÃO DE CONTAS E EXPURGO DE DADOS ATRELADOS ---
   const deletarUsuario = (usernameParaDeletar) => {
     if (usernameParaDeletar.toLowerCase() === "admin") {
       alert("Você não pode deletar a conta do administrador!");
@@ -61,7 +60,7 @@ function Admin({ onLogout }) {
         `Tem certeza que deseja apagar permanentemente o usuário "${usernameParaDeletar}" e todas as suas listas?`,
       )
     ) {
-      // 1. Remove da lista de logins
+      // 1. Exclusão do identificador lógico do usuário na coleção primária
       const novosUsuarios = usuarios.filter(
         (u) => u.username !== usernameParaDeletar,
       );
@@ -71,7 +70,7 @@ function Admin({ onLogout }) {
       );
       setUsuarios(novosUsuarios);
 
-      // 2. Limpa os dados de tarefas que pertenciam a ele
+      // 2. Desalocação e purgação de coleções secundárias (Tabelas/Listas) do armazenamento local
       localStorage.removeItem(`todos_${usernameParaDeletar}`);
       localStorage.removeItem(`completed_${usernameParaDeletar}`);
       localStorage.removeItem(`removed_${usernameParaDeletar}`);
@@ -80,7 +79,7 @@ function Admin({ onLogout }) {
     }
   };
 
-  // Filtra as atividades com base no que o admin digitar na busca
+  // --- FILTRAGEM DINÂMICA DE LOGS DE AUDITORIA (EM MEMÓRIA) ---
   const logsFiltrados = logs.filter((log) =>
     log.usuario.toLowerCase().includes(filtroUsuario.toLowerCase()),
   );
@@ -88,16 +87,16 @@ function Admin({ onLogout }) {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h2>Painel do Administrador ⚙️</h2>
+        <h2>Painel do Administrador</h2>
         <button onClick={onLogout} style={styles.btnSair}>
           Sair do Painel
         </button>
       </header>
 
-      {/* --- SEÇÃO 1: GESTÃO DE USUÁRIOS --- */}
+      {/* SEÇÃO 1: GESTÃO DE USUÁRIOS CADASTRADOS */}
       <section style={styles.section}>
         <h3 style={styles.subtitulo}>
-          👥 Gestão de Usuários Cadastrados ({usuarios.length})
+          Gestão de Usuários Cadastrados ({usuarios.length})
         </h3>
         <div style={styles.tabelaContainer}>
           <table style={styles.tabela}>
@@ -114,7 +113,7 @@ function Admin({ onLogout }) {
                   <td style={styles.td}>
                     <strong>{u.username}</strong>
                   </td>
-                  {/* 🔒 Senha mascarada para garantir a privacidade */}
+                  {/* Mascaramento visual para conformidade básica de visualização */}
                   <td style={styles.td}>
                     <span style={styles.senhaMascarada}>••••••••</span>
                   </td>
@@ -141,9 +140,9 @@ function Admin({ onLogout }) {
         </div>
       </section>
 
-      {/* --- SEÇÃO 2: RELATÓRIO DE MOVIMENTAÇÃO DIÁRIA --- */}
+      {/* SEÇÃO 2: RELATÓRIO DE MOVIMENTAÇÃO DIÁRIA (AUDIT LOGS) */}
       <section style={styles.section}>
-        <h3 style={styles.subtitulo}>📈 Relatório de Movimentação Diária</h3>
+        <h3 style={styles.subtitulo}>Relatório de Movimentação Diária</h3>
 
         <div style={{ marginBottom: "15px" }}>
           <input
@@ -161,9 +160,7 @@ function Admin({ onLogout }) {
               Nenhuma atividade registrada hoje.
             </p>
           ) : (
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-            >
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {logsFiltrados.map((log) => (
                 <div key={log.id} style={styles.logCard}>
                   <span style={styles.logData}>{log.data}</span>
@@ -183,6 +180,7 @@ function Admin({ onLogout }) {
   );
 }
 
+// --- ARQUITETURA DE ESTILOS LOCAIS (CSS-IN-JS PATTERN) ---
 const styles = {
   container: {
     maxWidth: "900px",
@@ -268,6 +266,7 @@ const styles = {
     cursor: "pointer",
     fontSize: "13px",
   },
+  // Injeção condicional de propriedades de estilo dinâmico baseado em tokens de ação
   acaoBadge: (acao) => {
     let cor = "#10b981";
     if (acao === "Adicionou") cor = "#3b82f6";
