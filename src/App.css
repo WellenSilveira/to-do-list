@@ -1,23 +1,45 @@
+/* --- 🔱 VARIABLES: ZELDA FANDOM WIKI THEME (MAJORA'S MASK) --- */
+:root {
+  --wiki-bg-dark: #121212;      /* O fundo preto/cinza escuro profundo do site */
+  --wiki-sidebar: #1a1a1a;     /* Tom ligeiramente mais claro da barra de navegação lateral */
+  --wiki-olive-box: #5d4900;   /* O clássico fundo oliva/mostarda do container principal */
+  --wiki-triforce-yellow: #ffd400; /* O amarelo ouro radiante do brasão oficial */
+  --wiki-text-light: #e2e8f0;  /* Cor dos textos gerais da enciclopédia */
+  --wiki-text-muted: #8e8e8e;  /* Textos secundários e descrições */
+}
+
+/* 🌍 ESTILO GERAL DO BODY (FUNDO DO JOGO) */
+body {
+  background-color: var(--wiki-bg-dark);
+  color: var(--wiki-text-light);
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- 🏛️ CONTAINER PRINCIPAL --- */
 .app-container {
   max-width: 560px;
   margin: 40px auto;
   padding: 24px;
-  background: #fff;
+  background: var(--wiki-sidebar); /* Bloco interno simulando a estrutura de cards da Wiki */
   border-radius: 18px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #2d2d2d;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
 }
 
+/* 🏷️ TEXTOS DO CABEÇALHO */
 header h1 {
   margin: 0;
   font-size: 2rem;
-  color: #1f2937;
+  color: var(--wiki-triforce-yellow); /* Destaque principal em Amarelo Triforce */
 }
 
 header p {
   margin: 8px 0 24px;
-  color: #4b5563;
+  color: var(--wiki-text-muted);
 }
 
+/* 🗺️ ABAS DE NAVEGAÇÃO */
 .app-nav {
   display: flex;
   gap: 12px;
@@ -27,24 +49,30 @@ header p {
 .app-nav button {
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #3a3a3a;
   border-radius: 14px;
-  background: #f8fafc;
-  color: #1f2937;
+  background: var(--wiki-bg-dark);
+  color: #8d7a0b; /* Mantém o texto padrão claro */
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  font-weight: bold;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
+/* Aba ativa: Fundo assume o VERDE MUSGO quando selecionado, mantendo a cor do texto */
 .app-nav button.active {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
+  background: #114704; /* Fundo Verde Musgo */
+  color: #8d7a0b; /* Mantém o texto original claro */
+  border-color: var(--wiki-olive-box); /* Borda acompanha o verde musgo */
 }
 
+/* Hover das abas: Transiciona para o fundo VERDE MUSGO ao passar o mouse */
 .app-nav button:hover {
-  background: #e0f2fe;
+  background: #1c7406; /* Fundo Verde Musgo no hover */
+  color: #8d7a0b; /* Mantém o texto original claro */
+  border-color: var(--wiki-olive-box);
 }
 
+/* 📝 ENTRADA DE TAREFAS (INPUT) */
 .task-input {
   display: flex;
   gap: 12px;
@@ -54,25 +82,36 @@ header p {
 .task-input input {
   flex: 1;
   padding: 12px 14px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #3a3a3a;
   border-radius: 12px;
+  background-color: var(--wiki-bg-dark);
+  color: white;
   font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.task-input input:focus {
+  border-color: var(--wiki-triforce-yellow);
+  outline: none;
 }
 
 .task-input button {
   padding: 12px 18px;
   border: none;
   border-radius: 12px;
-  background: #2563eb;
+  background: var(--wiki-olive-box);
   color: white;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.2s;
 }
 
 .task-input button:hover {
-  background: #1d4ed8;
+  background: #4a3a00; /* Variação sutil do oliva para o hover */
 }
 
+/* 🗡️ LISTA DE TAREFAS (INVENTÁRIO DE MISSÕES) */
 .task-list ul {
   list-style: none;
   padding: 0;
@@ -85,16 +124,18 @@ header p {
   justify-content: space-between;
   gap: 16px;
   padding: 12px 14px;
-  border: 1px solid #e5e7eb;
+  background: var(--wiki-bg-dark);
+  border: 1px solid #2a2a2a;
   border-radius: 12px;
   margin-bottom: 12px;
 }
 
 .task-list li.done span {
   text-decoration: line-through;
-  color: #6b7280;
+  color: var(--wiki-text-muted);
 }
 
+/* Botão de Remover */
 .task-list button {
   border: none;
   background: #ef4444;
@@ -102,12 +143,14 @@ header p {
   padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
+  font-weight: bold;
 }
 
 .task-list button:hover {
   background: #dc2626;
 }
 
+/* 🗂️ SEÇÃO DE HISTÓRICO */
 .history-section {
   margin-top: 32px;
   display: grid;
@@ -116,7 +159,7 @@ header p {
 
 .history-section h2 {
   margin-bottom: 16px;
-  color: #111827;
+  color: var(--wiki-triforce-yellow);
 }
 
 .history-search {
@@ -126,9 +169,16 @@ header p {
 .history-search input {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #3a3a3a;
   border-radius: 12px;
+  background-color: var(--wiki-bg-dark);
+  color: white;
   font-size: 1rem;
+}
+
+.history-search input:focus {
+  border-color: var(--wiki-triforce-yellow);
+  outline: none;
 }
 
 .history-grid {
@@ -136,22 +186,26 @@ header p {
   gap: 18px;
 }
 
+/* 📱 RESPONSIVIDADE ORIGINAL MANTIDA EM 100% */
 @media (min-width: 720px) {
   .history-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
+/* Cards do Histórico estilizados com a caixa mostarda escura */
 .history-card {
   padding: 18px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--wiki-olive-box);
   border-radius: 16px;
-  background: #f9fafb;
+  background: #181610; /* Mistura de preto com um fundo levemente quente */
 }
 
 .history-card h3 {
   margin: 0 0 12px;
-  color: #1f2937;
+  color: var(--wiki-triforce-yellow);
+  border-bottom: 1px solid #2d2d2d;
+  padding-bottom: 8px;
 }
 
 .history-card ul {
@@ -162,7 +216,8 @@ header p {
 
 .history-card li {
   padding: 10px 0;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #2d2d2d;
+  color: var(--wiki-text-light);
 }
 
 .history-card li:last-child {
@@ -170,6 +225,6 @@ header p {
 }
 
 .empty-state {
-  color: #6b7280;
+  color: var(--wiki-text-muted);
   text-align: center;
 }
